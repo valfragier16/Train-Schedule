@@ -1,0 +1,24 @@
+body {
+    background-image: url("../Images/trains1.jpg");
+    text-align: center;
+	background-size: 100%;
+}
+
+#jumbotron {
+    text-align: center;
+}
+
+#current-schedule {
+    margin-left: 500px;
+    margin-right: 500px;
+    color: brown;
+    font-size-adjust: larger;
+    background: gainsboro;
+    text-align: center;
+}
+
+#add-train {
+    margin-left: 500px;
+    background: gainsboro;
+    margin-right: 500px;
+}
