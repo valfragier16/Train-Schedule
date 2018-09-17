@@ -1,124 +1,149 @@
-// Add firebase to website to collect data
-	var config = {
-		apiKey: "AIzaSyCMYTvBQ5ynE6DcCQO4TgK0RuJSNjhSBiE",
-		authDomain: "train-scheduler-hw-155f4.firebaseapp.com",
-		databaseURL: "https://train-scheduler-hw-155f4.firebaseio.com",
-		projectId: "train-scheduler-hw-155f4",
-		storageBucket: "train-scheduler-hw-155f4.appspot.com",
-		messagingSenderId: "24960377523"
-	  };
+// Global Variables
+var trainName = "";
+var trainDestination = "";
+var trainTime = "";
+var trainFrequency = "";
+var nextArrival = "";
+var minutesAway = "";
 
-	  firebase.initializeApp(config);
+// jQuery global variables
+var elTrain = $("#train-name");
+var elTrainDestination = $("#train-destination");
+// form validation for Time using jQuery Mask plugin
+var elTrainTime = $("#train-time").mask("00:00");
+var elTimeFreq = $("#time-freq").mask("00");
 
-	  var database = firebase.database();
 
-	  var trainName ; 
-	  var destination ; 
-	  var time ;
-	  var frequency ; 
-	  var nextArrival ;
-	  var minutesAway ; 
-	  var keyArray = []; 
+// Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAt6Ef1SxtuKM2VYnb1a83ye3jOoCtIf6E",
+    authDomain: "train-scheduler-hw-d50f0.firebaseapp.com",
+    databaseURL: "https://train-scheduler-hw-d50f0.firebaseio.com",
+    projectId: "train-scheduler-hw-d50f0",
+    storageBucket: "train-scheduler-hw-d50f0.appspot.com",
+    messagingSenderId: "419281387753"
+  };
+  firebase.initializeApp(config);
+
+
 
 //  Display 'real-time' in Jumbotron
-	  function timeDisplay() {
-	  	var timeNow = moment().format("HH:mm:ss"); 
-	  	$(".timeNow").html(timeNow)
-	  }; 
+function timeDisplay() {
+	var timeNow = moment().format("HH:mm:ss"); 
+	$(".timeNow").html(timeNow)
+}; 
 
-	  setInterval(timeDisplay, 1000); 
-
-
-
-// Form - add train information
-	$("#click-button").on("click", function(event) {
-	  	event.preventDefault();
-
-	   trainName = $("#name").val().trim();
-	   	console.log("trainName " + trainName); 
-	   destination = $("#destination").val().trim();
-	   	console.log("destination " + destination); 
-	   time = $("#time").val().trim();
-	   	console.log("first train " + time); 
-	   frequency = $("#frequency").val().trim();
-	   	console.log("frequency " + frequency);
-
-	    currentTime = moment().format("HH:mm"); 
-	    	console.log("currentTime " + currentTime); 
-	  	var timeConvert = moment(time, "HH:mm").subtract(1, "years");  
-	  		console.log(timeConvert); 
-	  	var timeDiff = moment().diff(moment(timeConvert), 'minutes'); 
-	  		console.log("timeDiff " + timeDiff); 
-	  	var remainder = timeDiff % frequency; 
-	  		console.log("remainder " + remainder); 
-	  	minutesAway = frequency - remainder; 
-	  		console.log("minutes away " + minutesAway); 
-	  	nextArrival = moment().add(minutesAway, "m").format("hh:mm A"); 
-	  		console.log("nextArrival " + nextArrival); 
-	 	 
-
-	    database.ref().child("trains").push({
-	      trainName : trainName,
-	      destination : destination,
-	      time : time,
-	      frequency : frequency,
-	      nextArrival: nextArrival,
-	      minutesAway: minutesAway
-	    });
+setInterval(timeDisplay, 1000); 
 
 
-      $("#name").val(""); 
-      $("#destination").val(""); 
-      $("#time").val(""); 
-      $("#frequency").val(""); 
-
-    
-	}); 
 
 
-	database.ref().child("trains").on("child_added", function(snapshot) {
-  		console.log("this is the snapshot: " + snapshot)
-  		console.log(snapshot.val())
-  		
+// Assign the reference to the database to a variable named 'database'
+var database = firebase.database();
 
-  	  var key = snapshot.key; 
-  	  	keyArray.push(key); 
-  	  	console.log(keyArray); 
+database.ref("/trains").on("child_added", function(snapshot) {
 
-  	  
-  	  	console.log("key" + key); 
+    //  create local variables to store the data from firebase
+    var trainDiff = 0;
+    var trainRemainder = 0;
+    var minutesTillArrival = "";
+    var nextTrainTime = "";
+    var frequency = snapshot.val().frequency;
 
-  	  var button = $("<button>"); 
-	   button.append("Trash"); 
-	   button.attr("removeBtn", key); 
-	   button.addClass("buttons glyphicon glyphicon-trash"); 
-  	   console.log(button)
+    // compute the difference in time from 'now' and the first train using UNIX timestamp, store in var and convert to minutes
+    trainDiff = moment().diff(moment.unix(snapshot.val().time), "minutes");
 
-	  var row = $("<tr>");
-	   row.attr("id", key); 
-	   	console.log(row); 
-	   row.append("<td>" +  snapshot.val().trainName + "</td>"); 
-	   row.append("<td>" +  snapshot.val().destination + "</td>");
-	   row.append("<td>" +  snapshot.val().time + "</td>");
-	   row.append("<td>" +  snapshot.val().frequency + "</td>");
-	   row.append("<td>" +  snapshot.val().nextArrival + "</td>");
-	   row.append("<td>" +  snapshot.val().minutesAway + "</td>");
+    // get the remainder of time by using 'moderator' with the frequency & time difference, store in var
+    trainRemainder = trainDiff % frequency;
 
-	   var emptyTd = $("<td>"); 
-	   var buttonTd = emptyTd.append(button); 
-	   row.append(buttonTd); 
+    // subtract the remainder from the frequency, store in var
+    minutesTillArrival = frequency - trainRemainder;
 
-	   $("#trains").prepend(row);
+    // add minutesTillArrival to now, to find next train & convert to standard time format
+    nextTrainTime = moment().add(minutesTillArrival, "m").format("hh:mm A");
 
-	   
-	});
+    // append to our table of trains, inside tbody, with a new row of the train data
+    $("#table-data").append(
+        "<tr><td>" + snapshot.val().name + "</td>" +
+        "<td>" + snapshot.val().destination + "</td>" +
+        "<td>" + frequency + "</td>" +
+        "<td>" + minutesTillArrival + "</td>" +
+        "<td>" + nextTrainTime + "  " + "<a><span class='glyphicon glyphicon-remove icon-hidden' aria-hidden='true'></span></a>" + "</td></tr>"
+    );
 
-// Function to remove train on schedule 
-	$(document.body).on("click", ".buttons", function() {
-		var trainRemove = $(this).attr("removeBtn");
-			console.log("trainRemove" + trainRemove); 
-		database.ref().child("trains").child(trainRemove).remove(); 
-		location.reload(); 
-	});
+    $("span").hide();
+
+    // Hover view of delete button
+    $("tr").hover(
+        function() {
+            $(this).find("span").show();
+        },
+        function() {
+            $(this).find("span").hide();
+        });
+
+    // STARTED BONUS TO REMOVE ITEMS ** not finished **
+    $("#table-data").on("click", "tr span", function() {
+        console.log(this);
+        var trainRef = database.ref("/trains/");
+        console.log(trainRef);
+    });
+});
+
+// function to call the button event, and store the values in the input form
+var storeInputs = function(event) {
+    // prevent from from reseting
+    event.preventDefault();
+
+    // get & store input values
+    trainName = elTrain.val().trim();
+    trainDestination = elTrainDestination.val().trim();
+    trainTime = moment(elTrainTime.val().trim(), "HH:mm").subtract(1, "years").format("X");
+    trainFrequency = elTimeFreq.val().trim();
+
+    // add to firebase databse
+    database.ref("/trains").push({
+        name: trainName,
+        destination: trainDestination,
+        time: trainTime,
+        frequency: trainFrequency,
+        nextArrival: nextArrival,
+        minutesAway: minutesAway,
+        date_added: firebase.database.ServerValue.TIMESTAMP
+    });
+
+    //  alert that train was added
+    alert("Train successuflly added!");
+
+    //  empty form once submitted
+    elTrain.val("");
+    elTrainDestination.val("");
+    elTrainTime.val("");
+    elTimeFreq.val("");
+};
+
+// Calls storeInputs function if submit button clicked
+$("#btn-add").on("click", function(event) {
+    // form validation - if empty - alert
+    if (elTrain.val().length === 0 || elTrainDestination.val().length === 0 || elTrainTime.val().length === 0 || elTimeFreq === 0) {
+        alert("Please Fill All Required Fields");
+    } else {
+        // if form is filled out, run function
+        storeInputs(event);
+    }
+});
+
+// Calls storeInputs function if enter key is clicked
+$('form').on("keypress", function(event) {
+    if (event.which === 13) {
+        // form validation - if empty - alert
+        if (elTrain.val().length === 0 || elTrainDestination.val().length === 0 || elTrainTime.val().length === 0 || elTimeFreq === 0) {
+            alert("Please Fill All Required Fields");
+        } else {
+            // if form is filled out, run function
+            storeInputs(event);
+        }
+    }
+});
 
 
