@@ -86,11 +86,13 @@ database.ref("/trains").on("child_added", function(snapshot) {
             $(this).find("span").hide();
         });
 
-    // STARTED BONUS TO REMOVE ITEMS ** not finished **
+    // RRemove items form list - Try to fix
     $("#table-data").on("click", "tr span", function() {
         console.log(this);
         var trainRef = database.ref("/trains/");
         console.log(trainRef);
+        atabase.ref().child("trains").child(trainRemove).remove(); 
+        location.reload(); 
     });
 });
 
@@ -149,5 +151,7 @@ $('form').on("keypress", function(event) {
         }
     }
 });
+
+
 
 
