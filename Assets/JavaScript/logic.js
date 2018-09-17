@@ -1,3 +1,7 @@
+// Ceate Jumbotron with current time in it
+// Create table with train schedule information you input 
+// Create form to input train infomration
+
 // Global Variables
 var trainName = "";
 var trainDestination = "";

@@ -25,7 +25,6 @@ body {
 }
 
 
-
 table {
     margin: 0 auto;
 }
@@ -46,11 +45,7 @@ td {
     width: 1%;
 }
 
-h1 img {
-    width: 5%;
-    padding-bottom: 1%;
-}
-
+/* x to delete entry on train table */
 .glyphicon-remove {
     color: darkred;
     padding-left: 15%;
