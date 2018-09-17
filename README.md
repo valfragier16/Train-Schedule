@@ -12,6 +12,9 @@ Note:
 Code this app to calculate when the next train will arrive; this should be relative to the current time.
 Users from many different machines must be able to view same train times.
 
+View website here:
+https://valfragier16.github.io/Train-Schedule/
+
 
 
 
