@@ -78,7 +78,7 @@ $("#click-button").on("click", function(event) {
     });
 
 
-    //  alert that train was added
+    //  alert that train was added after submit button is clicked
     alert("Train successuflly added!");
 
   $("#name").val(""); 
