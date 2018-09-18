@@ -13,7 +13,7 @@ Added Functionality
 Form Validation for correct time input
 
 View website here:
-https://valfragier16.github.io/Train-Schedule/
+https://valfragier16.github.io/Train-Scheduler/
 
 
 
