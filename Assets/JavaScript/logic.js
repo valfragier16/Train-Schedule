@@ -78,6 +78,9 @@ $("#click-button").on("click", function(event) {
     });
 
 
+    //  alert that train was added
+    alert("Train successuflly added!");
+
   $("#name").val(""); 
   $("#destination").val(""); 
   $("#time").val(""); 
@@ -120,10 +123,8 @@ database.ref().child("trains").on("child_added", function(snapshot) {
     var buttonTd = emptyTd.append(button); 
     row.append(buttonTd); 
 
-    $("#trains").prepend(row);
 
-    //  alert that train was added
-    alert("Train successuflly added!");
+    $("#trains").prepend(row);
 
    
 });
