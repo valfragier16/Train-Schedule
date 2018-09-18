@@ -85,6 +85,8 @@ database.ref("/trains").on("child_added", function(snapshot) {
         function() {
             $(this).find("span").hide();
         });
+});
+
 
     // RRemove items form list - Try to fix
     $("#table-data").on("click", "tr span", function() {
@@ -94,7 +96,6 @@ database.ref("/trains").on("child_added", function(snapshot) {
         atabase.ref().child("trains").child(trainRemove).remove(); 
         location.reload(); 
     });
-});
 
 // function to call the button event, and store the values in the input form
 var storeInputs = function(event) {
