@@ -1,52 +1,16 @@
 body {
     background-image: url("../Images/trains2.jpg");
+    background-size: 100%;
+}
+
+h1, p {
     text-align: center;
-	background-size: 100%;
 }
 
-#jumbotron {
+.panel-heading {
     text-align: center;
-}
-
-#head-container {
-    margin-top: 1%;
-}
-
-
-
-.panel-custom {
-    background-color: #141f3d !important;
-    color: white !important;
-}
-
-
-table {
-    margin: 0 auto;
 }
 
 th {
-    margin: 1% 1% 0 1%;
-    padding: 3% 3% 0 3%;
-    width: 1%;
-}
-
-hr {
-    margin: 1%;
-}
-
-td {
-    margin: 1% 1% 0 1%;
-    padding: 3% 3% 0 3%;
-    width: 1%;
-}
-
-/* x to delete entry on train table */
-.glyphicon-remove {
-    color: darkred;
-    padding-left: 15%;
-}
-
-.form-control:focus {
-    border-color: #141f3d;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px #141f3d;
+    text-align: left;
 }

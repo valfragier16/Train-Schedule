@@ -3,20 +3,13 @@
 // Create form to input train infomration
 
 // Global Variables
-var trainName = "";
-var trainDestination = "";
-var trainTime = "";
-var trainFrequency = "";
-var nextArrival = "";
-var minutesAway = "";
-
-// jQuery global variables
-var elTrain = $("#train-name");
-var elTrainDestination = $("#train-destination");
-// form validation for Time using jQuery Mask plugin
-var elTrainTime = $("#train-time").mask("00:00");
-var elTimeFreq = $("#time-freq").mask("00");
-
+var trainName ; 
+var destination ; 
+var time ;
+var frequency ; 
+var nextArrival ;
+var minutesAway ; 
+var keyArray = []; 
 
 // Initialize Firebase
   var config = {
@@ -30,128 +23,119 @@ var elTimeFreq = $("#time-freq").mask("00");
   firebase.initializeApp(config);
 
 
+// Assign the reference to the database to a veriable - 'database'
+  var database = firebase.database();
 
-//  Display 'real-time' in Jumbotron
-function timeDisplay() {
-	var timeNow = moment().format("HH:mm:ss"); 
-	$(".timeNow").html(timeNow)
-}; 
+// Display 'eal-time' in Jumbotron
+  function timeDisplay() {
+      var timeNow = moment().format("HH:mm:ss"); 
+      $(".timeNow").html(timeNow)
+  }; 
 
-setInterval(timeDisplay, 1000); 
-
-
-
-
-// Assign the reference to the database to a variable named 'database'
-var database = firebase.database();
-
-database.ref("/trains").on("child_added", function(snapshot) {
-
-    //  create local variables to store the data from firebase
-    var trainDiff = 0;
-    var trainRemainder = 0;
-    var minutesTillArrival = "";
-    var nextTrainTime = "";
-    var frequency = snapshot.val().frequency;
-
-    // compute the difference in time from 'now' and the first train using UNIX timestamp, store in var and convert to minutes
-    trainDiff = moment().diff(moment.unix(snapshot.val().time), "minutes");
-
-    // get the remainder of time by using 'moderator' with the frequency & time difference, store in var
-    trainRemainder = trainDiff % frequency;
-
-    // subtract the remainder from the frequency, store in var
-    minutesTillArrival = frequency - trainRemainder;
-
-    // add minutesTillArrival to now, to find next train & convert to standard time format
-    nextTrainTime = moment().add(minutesTillArrival, "m").format("hh:mm A");
-
-    // append to our table of trains, inside tbody, with a new row of the train data
-    $("#table-data").append(
-        "<tr><td>" + snapshot.val().name + "</td>" +
-        "<td>" + snapshot.val().destination + "</td>" +
-        "<td>" + frequency + "</td>" +
-        "<td>" + minutesTillArrival + "</td>" +
-        "<td>" + nextTrainTime + "  " + "<a><span class='glyphicon glyphicon-remove icon-hidden' aria-hidden='true'></span></a>" + "</td></tr>"
-    );
-
-    $("span").hide();
-
-    // Hover view of delete button
-    $("tr").hover(
-        function() {
-            $(this).find("span").show();
-        },
-        function() {
-            $(this).find("span").hide();
-        });
-});
+  setInterval(timeDisplay, 1000); 
 
 
-    // RRemove items form list - Try to fix
-    $("#table-data").on("click", "tr span", function() {
-        console.log(this);
-        var trainRef = database.ref("/trains/");
-        console.log(trainRef);
-        atabase.ref().child("trains").child(trainRemove).remove(); 
-        location.reload(); 
+
+// Add train form
+$("#click-button").on("click", function(event) {
+      event.preventDefault();
+
+  
+   trainName = $("#name").val().trim();
+       console.log("trainName " + trainName); 
+   destination = $("#destination").val().trim();
+       console.log("destination " + destination); 
+   time = $("#time").val().trim();
+       console.log("first train " + time); 
+   frequency = $("#frequency").val().trim();
+       console.log("frequency " + frequency);
+
+
+    currentTime = moment().format("HH:mm"); 
+        console.log("currentTime " + currentTime); 
+    // Compute the diffeernce in time from 'now' and the first train using UNIX timestamp
+      var timeConvert = moment(time, "HH:mm").subtract(1, "years");  
+          console.log(timeConvert); 
+      var timeDiff = moment().diff(moment(timeConvert), 'minutes'); 
+          console.log("timeDiff " + timeDiff); 
+      var remainder = timeDiff % frequency; 
+          console.log("remainder " + remainder); 
+    
+      minutesAway = frequency - remainder; 
+          console.log("minutes away " + minutesAway); 
+    // Add mintuesAway to now, to find the next train & conver to standard time
+      nextArrival = moment().add(minutesAway, "m").format("hh:mm A"); 
+          console.log("nextArrival " + nextArrival); 
+      
+    // Add entries to the train schedule table 
+    database.ref().child("trains").push({
+      trainName : trainName,
+      destination : destination,
+      time : time,
+      frequency : frequency,
+      nextArrival: nextArrival,
+      minutesAway: minutesAway
     });
 
-// function to call the button event, and store the values in the input form
-var storeInputs = function(event) {
-    // prevent from from reseting
-    event.preventDefault();
 
-    // get & store input values
-    trainName = elTrain.val().trim();
-    trainDestination = elTrainDestination.val().trim();
-    trainTime = moment(elTrainTime.val().trim(), "HH:mm").subtract(1, "years").format("X");
-    trainFrequency = elTimeFreq.val().trim();
+  $("#name").val(""); 
+  $("#destination").val(""); 
+  $("#time").val(""); 
+  $("#frequency").val(""); 
 
-    // add to firebase databse
-    database.ref("/trains").push({
-        name: trainName,
-        destination: trainDestination,
-        time: trainTime,
-        frequency: trainFrequency,
-        nextArrival: nextArrival,
-        minutesAway: minutesAway,
-        date_added: firebase.database.ServerValue.TIMESTAMP
-    });
+
+}); 
+
+// Train Schedule table
+database.ref().child("trains").on("child_added", function(snapshot) {
+      console.log("this is the snapshot: " + snapshot)
+      console.log(snapshot.val())
+
+    var key = snapshot.key; 
+        keyArray.push(key); 
+        console.log(keyArray); 
+
+    
+        console.log("key" + key); 
+
+    // Button to remove train from schedule
+    var button = $("<button>"); 
+    button.append("Trash"); 
+    button.attr("removeBtn", key); 
+    button.addClass("buttons glyphicon glyphicon-trash"); 
+        console.log(button)
+
+    var row = $("<tr>");
+    row.attr("id", key); 
+        console.log(row); 
+    row.append("<td>" +  snapshot.val().trainName + "</td>"); 
+    row.append("<td>" +  snapshot.val().destination + "</td>");
+    row.append("<td>" +  snapshot.val().time + "</td>");
+    row.append("<td>" +  snapshot.val().frequency + "</td>");
+    row.append("<td>" +  snapshot.val().nextArrival + "</td>");
+    row.append("<td>" +  snapshot.val().minutesAway + "</td>");
+
+    // Empty fomr once submitted
+    var emptyTd = $("<td>"); 
+    var buttonTd = emptyTd.append(button); 
+    row.append(buttonTd); 
+
+    $("#trains").prepend(row);
 
     //  alert that train was added
     alert("Train successuflly added!");
 
-    //  empty form once submitted
-    elTrain.val("");
-    elTrainDestination.val("");
-    elTrainTime.val("");
-    elTimeFreq.val("");
-};
-
-// Calls storeInputs function if submit button clicked
-$("#btn-add").on("click", function(event) {
-    // form validation - if empty - alert
-    if (elTrain.val().length === 0 || elTrainDestination.val().length === 0 || elTrainTime.val().length === 0 || elTimeFreq === 0) {
-        alert("Please Fill All Required Fields");
-    } else {
-        // if form is filled out, run function
-        storeInputs(event);
-    }
+   
 });
 
-// Calls storeInputs function if enter key is clicked
-$('form').on("keypress", function(event) {
-    if (event.which === 13) {
-        // form validation - if empty - alert
-        if (elTrain.val().length === 0 || elTrainDestination.val().length === 0 || elTrainTime.val().length === 0 || elTimeFreq === 0) {
-            alert("Please Fill All Required Fields");
-        } else {
-            // if form is filled out, run function
-            storeInputs(event);
-        }
-    }
+// Remove train button
+$(document.body).on("click", ".buttons", function() {
+    var trainRemove = $(this).attr("removeBtn");
+        console.log("trainRemove" + trainRemove); 
+    database.ref().child("trains").child(trainRemove).remove(); 
+    location.reload(); 
 });
+
 
 
 
