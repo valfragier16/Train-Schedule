@@ -2,7 +2,7 @@
  GW Homework #7
  
 Overview
-In this assignment, the objective was to create a train schedule application that incorporates Firebase to host arrival and departure data. The use rshould be able to submit the following: Train name, destination, first train time (in military time) and frequency (in minutes). My app retrieves and manipulates the data with Moment.js. This website provides up-to-date information and the current time.
+In this assignment, the objective was to create a train schedule application that incorporates Firebase to host arrival and departure data. The user should be able to submit the following: Train name, destination, first train time (in military time) and frequency (in minutes). My app retrieves and manipulates the data with Moment.js. This website provides up-to-date information and the current time.
 
 Requirements
 App must suit these basic specs:
